@@ -68,27 +68,37 @@ int main(int argc, char *argv[])
   }
 
   bool is_comment = false;
+  bool is_multiline_comment = false;
+  char lastChar[2] = {0};
 
   do {
     Character = getc(FileInd);
-    if (!is_comment && char(Character) != ';' && char(Character) != '\n') {
+    if (!is_comment && char(Character) != ';' && char(Character) != '\n' && !is_multiline_comment) {
       Program.append(1, char(Character));
       Num_char ++;
     } else {
       switch (char(Character))
       {
       case ';':
-        is_comment = !is_comment;
+        if (lastChar[0] != ';' && !is_multiline_comment) is_comment = !is_comment;
+        else if (lastChar[1] == ';') {
+          is_multiline_comment = !is_multiline_comment;
+          is_comment = is_multiline_comment;
+        }
         break;
       case '\n':
-        is_comment = false;
+        if (!is_multiline_comment) is_comment = false;
         break;      
       default:
         break;
       }
     }
 
+    lastChar[1] = lastChar[0];
+    lastChar[0] = char(Character);
+
   } while ( Character != EOF );
+  cout << Program << endl;
 
   fclose(FileInd);
 
